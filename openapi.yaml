@@ -292,7 +292,7 @@ paths:
           content:
             text/plain:
               schema:
-                $ref: '#/components/schemas/File'
+                $ref: '#/components/schemas/BuildFileResponse'
   /files/{fileID}/contents:
     get:
       tags: ['ACH Files']
@@ -432,12 +432,12 @@ paths:
       responses:
         '200':
           description: File validated successfully without errors.
+        '400':
+          description: Validation failed. Check response for errors
           content:
             application/json:
               schema:
                 $ref: 'https://raw.githubusercontent.com/moov-io/base/master/api/common.yaml#/components/schemas/Error'
-        '400':
-          description: Validation failed. Check response for errors
     post:
       tags: ['ACH Files']
       summary: Validate File (Custom)
@@ -466,12 +466,12 @@ paths:
       responses:
         '200':
           description: File validated successfully without errors.
+        '400':
+          description: Validation failed. Check response for errors
           content:
             application/json:
               schema:
                 $ref: 'https://raw.githubusercontent.com/moov-io/base/master/api/common.yaml#/components/schemas/Error'
-        '400':
-          description: Validation failed. Check response for errors
   /files/{fileID}/segment:
     post:
       tags: ['ACH Files']
@@ -580,7 +580,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Batches'
+                $ref: '#/components/schemas/GetFileBatchesResponse'
     post:
       tags: ['ACH Files']
       summary: Append Batch to File
@@ -609,6 +609,10 @@ paths:
       responses:
         '200':
           description: Batch added to File
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddBatchToFileResponse'
         '400':
           description: See error in response body
           content:
@@ -650,7 +654,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Batch'
+                $ref: '#/components/schemas/GetFileBatchResponse'
         '404':
           description: Batch or File not found
     delete:
@@ -750,12 +754,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Batch'
-          minItems: 1
         IATBatches:
           type: array
           items:
             $ref: '#/components/schemas/IATBatch'
-          minItems: 1
         fileControl:
           $ref: '#/components/schemas/FileControl'
         advEntryDetails:
@@ -780,6 +782,40 @@ components:
       properties:
         file:
           $ref: '#/components/schemas/File'
+        error:
+          type: string
+          description: An error message describing the problem intended for humans.
+          example: Validation error(s) present.
+    BuildFileResponse:
+      properties:
+        file:
+          $ref: '#/components/schemas/File'
+        error:
+          type: string
+          description: An error message describing the problem intended for humans.
+          example: Validation error(s) present.
+    GetFileBatchResponse:
+      properties:
+        batch:
+          $ref: '#/components/schemas/Batch'
+        error:
+          type: string
+          description: An error message describing the problem intended for humans.
+          example: Validation error(s) present.
+    GetFileBatchesResponse:
+      properties:
+        batches:
+          $ref: '#/components/schemas/Batches'
+        error:
+          type: string
+          description: An error message describing the problem intended for humans.
+          example: Validation error(s) present.
+    AddBatchToFileResponse:
+      properties:
+        id:
+          type: string
+          description: Batch ID
+          example: "3f2d23ee214"
         error:
           type: string
           description: An error message describing the problem intended for humans.
@@ -900,7 +936,6 @@ components:
         batchCount:
           description: Count of Batches in the File
           type: integer
-          minimum: 1
           example: 1
         blockCount:
           description: |
@@ -910,7 +945,6 @@ components:
         entryAddendaCount:
           description: Total detail and addenda records in the file
           type: integer
-          minimum: 1
           example: 1
         entryHash:
           description: Calculated in the same manner as the batch total but includes total from entire file
