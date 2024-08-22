@@ -133,6 +133,12 @@ func MakeHTTPHandler(s Service, repo Repository, kitlog gokitlog.Logger) http.Ha
 		encodeResponse,
 		options...,
 	))
+	r.Methods("POST").Path("/files/text/{fileID}").Handler(httptransport.NewServer(
+    		createFileEndpoint(s, repo, logger),
+    		decodeCreateFileRequest,
+    		encodeResponse,
+    		options...,
+    	))
 	r.Methods("GET").Path("/files/{id}").Handler(httptransport.NewServer(
 		getFileEndpoint(s, logger),
 		decodeGetFileRequest,
@@ -205,6 +211,12 @@ func MakeHTTPHandler(s Service, repo Repository, kitlog gokitlog.Logger) http.Ha
 		encodeResponse,
 		options...,
 	))
+	r.Methods("POST").Path("/segment/text").Handler(httptransport.NewServer(
+    		segmentFileEndpoint(s, repo, logger),
+    		decodeSegmentFileRequest,
+    		encodeResponse,
+    		options...,
+    	))
 	r.Methods("POST").Path("/files/{fileID}/flatten").Handler(httptransport.NewServer(
 		flattenBatchesEndpoint(s, repo, logger),
 		decodeFlattenBatchesRequest,
